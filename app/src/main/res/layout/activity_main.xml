@@ -12,29 +12,30 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
 
+    <!-- Button to take a photo -->
     <Button
         android:id="@+id/image_capture_button"
         android:layout_width="110dp"
         android:layout_height="110dp"
-        android:layout_marginBottom="50dp"
-        android:layout_marginEnd="50dp"
         android:elevation="2dp"
         android:text="@string/take_photo"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toStartOf="@+id/vertical_centerline" />
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginBottom="16dp"
+        android:layout_marginEnd="16dp"/>
 
+    <!-- Home button -->
     <Button
-        android:id="@+id/video_capture_button"
+        android:id="@+id/home_button"
         android:layout_width="110dp"
         android:layout_height="110dp"
-        android:layout_marginBottom="50dp"
-        android:layout_marginStart="50dp"
-        android:elevation="2dp"
-        android:text="@string/start_capture"
+        android:text="Home"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toEndOf="@+id/vertical_centerline" />
+        app:layout_constraintStart_toStartOf="parent"
+        android:layout_marginBottom="16dp"
+        android:layout_marginStart="16dp"/>
 
+    <!-- Toggle flash button -->
     <Button
         android:id="@+id/flash_toggle_button"
         android:layout_width="110dp"
@@ -42,9 +43,10 @@
         android:text="@string/toggle_flash"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        android:layout_marginTop="20dp"
-        android:layout_marginEnd="20dp"/>
+        android:layout_marginTop="16dp"
+        android:layout_marginEnd="16dp"/>
 
+    <!-- Switch camera button -->
     <Button
         android:id="@+id/camera_switch_button"
         android:layout_width="110dp"
@@ -52,14 +54,7 @@
         android:text="@string/switch_camera"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        android:layout_marginTop="20dp"
-        android:layout_marginStart="20dp"/>
-
-    <androidx.constraintlayout.widget.Guideline
-        android:id="@+id/vertical_centerline"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        app:layout_constraintGuide_percent="0.50" />
+        android:layout_marginTop="16dp"
+        android:layout_marginStart="16dp"/>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -51,12 +51,18 @@ class MainActivity : AppCompatActivity() {
                 this, REQUIRED_PERMISSIONS, REQUEST_CODE_PERMISSIONS
             )
         }
+        viewBinding.homeButton.setOnClickListener {
+            val intent = Intent(this, HomeActivity::class.java)
+            startActivity(intent)
+            finish()
+        }
 
         //set up listeners for capturing photo and video
         viewBinding.imageCaptureButton.setOnClickListener { takePhoto() }
         viewBinding.flashToggleButton.setOnClickListener { toggleFlash() }
         viewBinding.cameraSwitchButton.setOnClickListener { switchCamera() }
         cameraExecutor = Executors.newSingleThreadExecutor()
+
     }
 
 
@@ -87,12 +93,27 @@ class MainActivity : AppCompatActivity() {
                 }
 
                 override fun onImageSaved(output: ImageCapture.OutputFileResults) {
-                    val msg = "Photo capture succeeded: ${output.savedUri}"
+                    val savedUri = output.savedUri.toString()
+                    val msg = "Photo capture succeeded: $savedUri"
                     Toast.makeText(baseContext, msg, Toast.LENGTH_SHORT).show()
                     Log.d(TAG, msg)
+
+                    // Save the URI to the database
+                    saveImageUriToDatabase(savedUri)
                 }
             }
         )
+    }
+
+    private fun saveImageUriToDatabase(savedUri: String) {
+        val dbHelper = DatabaseHelper(this)
+        val db = dbHelper.writableDatabase
+        val contentValues = ContentValues().apply {
+            put("image_uri", savedUri)
+        }
+        db.insert("images", null, contentValues)
+        db.close()
+
     }
 
 
@@ -257,4 +278,5 @@ class MainActivity : AppCompatActivity() {
             else -> super.onOptionsItemSelected(item)
         }
     }
+
 }

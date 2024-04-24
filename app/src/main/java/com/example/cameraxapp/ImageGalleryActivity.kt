@@ -37,5 +37,6 @@ class ImageGalleryActivity : AppCompatActivity() {
             adapter.addItem(uri)
         }
         cursor.close()
+        db.close()
     }
 }
