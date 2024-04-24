@@ -2,9 +2,13 @@ package com.example.cameraxapp
 
 import android.Manifest
 import android.content.ContentValues
+import android.content.ContextWrapper
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
 import android.graphics.Color
+import android.net.Uri
 import android.os.Build
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
@@ -21,15 +25,18 @@ import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.core.content.PermissionChecker
 import com.example.cameraxapp.databinding.ActivityMainBinding
+import java.io.File
+import java.io.FileOutputStream
+import java.io.IOException
+import java.io.OutputStream
 import java.nio.ByteBuffer
 import java.text.SimpleDateFormat
 import java.util.*
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
 
-typealias LumaListener = (luma: Double) -> Unit
-
 class MainActivity : AppCompatActivity() {
+    // instantiating variables
     private lateinit var viewBinding: ActivityMainBinding
     private var imageCapture: ImageCapture? = null
     private var videoCapture: VideoCapture<Recorder>? = null
@@ -40,8 +47,11 @@ class MainActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        // viewbinding initialization
         viewBinding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(viewBinding.root)
+        // attempt at populating database with images but didnt get this working. not core though
+        populateDatabaseWithPreMadeImages()
 
         //request camera permissions
         if (allPermissionsGranted()) {
@@ -51,6 +61,7 @@ class MainActivity : AppCompatActivity() {
                 this, REQUIRED_PERMISSIONS, REQUEST_CODE_PERMISSIONS
             )
         }
+        // home button click listener
         viewBinding.homeButton.setOnClickListener {
             val intent = Intent(this, HomeActivity::class.java)
             startActivity(intent)
@@ -65,7 +76,7 @@ class MainActivity : AppCompatActivity() {
 
     }
 
-
+    // used from lab 1
     private fun takePhoto() {
         //get stable reference of the modifiable image capture use case
         val imageCapture = imageCapture ?: return
@@ -105,6 +116,8 @@ class MainActivity : AppCompatActivity() {
         )
     }
 
+    // saving image URI's to database
+
     private fun saveImageUriToDatabase(savedUri: String) {
         val dbHelper = DatabaseHelper(this)
         val db = dbHelper.writableDatabase
@@ -115,8 +128,7 @@ class MainActivity : AppCompatActivity() {
         db.close()
 
     }
-
-
+    // taken from lab 1
     private fun startCamera(cameraSelector: CameraSelector = CameraSelector.DEFAULT_BACK_CAMERA) {
         // initialize camera provider
         val cameraProviderFuture = ProcessCameraProvider.getInstance(this)
@@ -167,6 +179,8 @@ class MainActivity : AppCompatActivity() {
             }
         }, ContextCompat.getMainExecutor(this))
     }
+
+    // permission check
 
 
     private fun allPermissionsGranted() = REQUIRED_PERMISSIONS.all {
@@ -277,6 +291,51 @@ class MainActivity : AppCompatActivity() {
             }
             else -> super.onOptionsItemSelected(item)
         }
+    }
+
+    // function for saving the given images to internal storage
+    private fun saveDrawableToInternalStorage(drawableId: Int): Uri? {
+        val contextWrapper = ContextWrapper(applicationContext)
+        val directory = contextWrapper.filesDir
+        val file = File(directory, "image${drawableId}.jpg")
+
+        try {
+            val stream: OutputStream = FileOutputStream(file)
+            val bitmap = BitmapFactory.decodeResource(resources, drawableId)
+            bitmap.compress(Bitmap.CompressFormat.JPEG, 100, stream)
+            stream.flush()
+            stream.close()
+        } catch (e: IOException) {
+            e.printStackTrace()
+            return null
+        }
+
+        return Uri.parse(file.absolutePath)
+    }
+
+    // function to populate the database with the above given images
+
+    private fun populateDatabaseWithPreMadeImages() {
+        val dbHelper = DatabaseHelper(this)
+        val db = dbHelper.writableDatabase
+        val cursor = db.rawQuery("SELECT COUNT(*) FROM images", null)
+        if (cursor != null && cursor.moveToFirst() && cursor.getInt(0) > 0) {
+            cursor.close()
+            return
+        }
+        cursor.close()
+        val images = listOf(R.drawable.example_image_1, R.drawable.example_image_2, R.drawable.example_image_3, R.drawable.example_image_4)
+
+        images.forEach { imageResId ->
+            val imageUri = saveDrawableToInternalStorage(imageResId)
+            if (imageUri != null) {
+                val contentValues = ContentValues().apply {
+                    put("image_uri", imageUri.toString())
+                }
+                db.insert("images", null, contentValues)
+            }
+        }
+        db.close()
     }
 
 }

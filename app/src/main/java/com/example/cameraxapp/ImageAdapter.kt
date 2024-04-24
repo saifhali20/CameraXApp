@@ -1,6 +1,7 @@
 package com.example.cameraxapp
 
 import android.content.Context
+import android.content.Intent
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import android.widget.ImageView
@@ -9,6 +10,7 @@ import com.bumptech.glide.Glide
 import com.example.cameraxapp.databinding.ItemImageBinding
 
 class ImageAdapter(private val context: Context) : RecyclerView.Adapter<ImageAdapter.ImageViewHolder>() {
+    // list to hold image URI's
     private val images = mutableListOf<String>()
 
     class ImageViewHolder(binding: ItemImageBinding) : RecyclerView.ViewHolder(binding.root) {
@@ -21,7 +23,14 @@ class ImageAdapter(private val context: Context) : RecyclerView.Adapter<ImageAda
     }
 
     override fun onBindViewHolder(holder: ImageViewHolder, position: Int) {
+        // load image into imageview using glide
         Glide.with(context).load(images[position]).into(holder.imageView)
+        // setting click listener to open the full image
+        holder.imageView.setOnClickListener {
+            val intent = Intent(context, FullImageActivity::class.java)
+            intent.putExtra("image_uri", images[position])
+            context.startActivity(intent)
+        }
     }
 
     override fun getItemCount() = images.size

@@ -13,9 +13,13 @@ class HomeActivity : AppCompatActivity() {
         binding = ActivityHomeBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
+        // click listener for open camerea
+
         binding.openCameraButton.setOnClickListener {
             startActivity(Intent(this, MainActivity::class.java))
         }
+
+        // click listener for view images
 
         binding.viewImagesButton.setOnClickListener {
             startActivity(Intent(this, ImageGalleryActivity::class.java))

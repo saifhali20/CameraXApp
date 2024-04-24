@@ -36,6 +36,8 @@
 
         <activity android:name=".ImageGalleryActivity"
             android:exported="true" />
+        <activity android:name=".FullImageActivity">
+        </activity>
 
     </application>
 </manifest>
